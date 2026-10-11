@@ -5,7 +5,7 @@
 
 Send this link to Mom (copy and send via WhatsApp / SMS / iMessage):
 
-👉  https://clarke-animals-heading-sub.trycloudflare.com
+👉  https://api.trycloudflare.com
 
 Password for Mom:  mom123
 

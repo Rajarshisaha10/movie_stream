@@ -1,13 +1,16 @@
-// Vercel Serverless Proxy to route /api/* and /stream/* to laptop backend
+import { getLiveBackendUrl } from './backend-url.js';
 
 export default async function handler(req, res) {
-  // Read backend URL from Vercel environment variable or query param / header
-  const backendUrl = process.env.BACKEND_URL || req.headers['x-backend-url'] || '';
+  // Read backend URL from query param, header, or auto-discovery registry
+  let backendUrl = req.headers['x-backend-url'] || '';
+  if (!backendUrl) {
+    backendUrl = await getLiveBackendUrl();
+  }
 
   if (!backendUrl) {
     return res.status(503).json({
-      error: 'BACKEND_URL is not configured in Vercel environment variables.',
-      message: 'Please set BACKEND_URL in your Vercel Project Settings to your laptop\'s tunnel URL (e.g. https://xxxx.trycloudflare.com)'
+      error: 'Laptop server is currently offline.',
+      message: 'Please run START_CINEMA_FOR_MOM.bat on your laptop to connect.'
     });
   }
 

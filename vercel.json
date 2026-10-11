@@ -4,6 +4,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/api/backend-url",
+      "destination": "/api/backend-url"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/proxy?path=/api/$1"
     },
