@@ -1,0 +1,33 @@
+{
+  "name": "private-movie-stream",
+  "version": "1.0.0",
+  "description": "Private, elder-friendly personal movie streaming server with adaptive HLS, direct play, watch-together sync, and remote access",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "tunnel": "node scripts/start_tunnel.js",
+    "test": "node scripts/test_pipeline.js",
+    "generate-sample": "node scripts/create_sample_video.js"
+  },
+  "keywords": [
+    "movie-stream",
+    "hls",
+    "ffmpeg",
+    "watch-together",
+    "private-cloud"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "hls.js": "^1.7.3",
+    "socket.io": "^4.8.1"
+  }
+}

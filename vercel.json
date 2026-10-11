@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "/api/proxy"
+    },
+    {
+      "source": "/stream/:match*",
+      "destination": "/api/proxy"
+    }
+  ]
+}

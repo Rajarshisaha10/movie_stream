@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Family Cinema -  Private Movie Player</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/player.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <a href="/" class="brand">
+      <span class="brand-icon">🎬</span>
+      <span class="brand-title">Family Cinema</span>
+    </a>
+    <div class="header-actions">
+      <button id="rescanBtn" class="btn btn-secondary" title="Check for new movies">
+        <span>🔄</span>
+        <span>Rescan Movies</span>
+      </button>
+      <button id="logoutBtn" class="btn btn-secondary btn-icon" title="Logout" aria-label="Logout">
+        🚪
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- Search Bar -->
+    <div class="search-section">
+      <div class="search-box-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search movies..."
+          aria-label="Search movies"
+        />
+      </div>
+    </div>
+
+    <!-- Continue Watching Hero Banner -->
+    <section id="continueSection" class="continue-section">
+      <div class="section-title">
+        <span>🕒</span>
+        <span>Continue Watching</span>
+      </div>
+      <div class="continue-card">
+        <div class="continue-thumb-wrap">
+          <img id="continueThumb" class="continue-thumb" src="" alt="Resume preview">
+        </div>
+        <div class="continue-info">
+          <div class="continue-badge">IN PROGRESS</div>
+          <h2 id="continueTitle" class="continue-title">Movie Title</h2>
+          <div id="continueMeta" class="continue-meta">Resume from 12:45</div>
+          <div class="continue-progress-wrap">
+            <div id="continueProgressFill" class="continue-progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="continue-actions">
+            <button id="continuePlayBtn" class="btn btn-primary">
+              <span>▶</span>
+              <span>Resume Watching</span>
+            </button>
+            <button id="continueRestartBtn" class="btn btn-secondary">
+              <span>↺</span>
+              <span>Start from Beginning</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Movies Catalog Section -->
+    <section>
+      <div class="section-title">
+        <span>🎥</span>
+        <span>All Movies</span>
+      </div>
+      <div id="movieGrid" class="movie-grid">
+        <!-- Rendered by app.js -->
+      </div>
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-icon">📁</div>
+        <div class="empty-text">No movies found in library.</div>
+        <button id="emptyRescanBtn" class="btn btn-primary" onclick="document.getElementById('rescanBtn').click()">
+          Scan Movies Folder
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Movie Details Modal -->
+  <div id="movieModal" class="modal-overlay">
+    <div class="modal-content">
+      <button id="modalCloseBtn" class="modal-close-btn" aria-label="Close modal">✕</button>
+      <div class="continue-thumb-wrap" style="max-width: 100%; border-radius: 14px; margin-bottom: 1.25rem;">
+        <img id="modalThumb" class="continue-thumb" src="" alt="Movie poster">
+      </div>
+      <h2 id="modalTitle" class="continue-title" style="margin-bottom: 0.75rem;">Movie Title</h2>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 12px; font-size: 1.05rem;">
+        <div>⏱ <strong>Duration:</strong> <span id="modalDuration" style="color: #94a3b8;">--</span></div>
+        <div>📺 <strong>Quality:</strong> <span id="modalResolution" style="color: #94a3b8;">--</span></div>
+        <div>💾 <strong>Size:</strong> <span id="modalSize" style="color: #94a3b8;">--</span></div>
+        <div>💬 <strong>Subtitles:</strong> <span id="modalSubtitles" style="color: #94a3b8;">--</span></div>
+      </div>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button id="modalPlayBtn" class="btn btn-primary" style="flex: 1; min-width: 180px; height: 56px; font-size: 1.2rem;">
+          <span>▶</span>
+          <span>Play Movie</span>
+        </button>
+        <button id="modalResumeBtn" class="btn btn-primary" style="flex: 1; min-width: 180px; height: 56px; font-size: 1.2rem; display: none;">
+          <span>▶</span>
+          <span>Resume</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Video Player Overlay -->
+  <div id="playerView" class="player-view">
+    <div class="video-container">
+      <video
+        id="videoPlayer"
+        playsinline
+        webkit-playsinline
+        x5-playsinline
+        preload="auto"
+      ></video>
+
+      <button id="centerPlayTrigger" class="centerPlayTrigger center-play-trigger" aria-label="Play or pause">
+        ▶
+      </button>
+
+      <!-- Player UI Overlay -->
+      <div id="playerOverlay" class="player-overlay">
+
+        <!-- Top Bar -->
+        <div class="player-top-bar">
+          <div class="player-title-wrap">
+            <button id="playerBackBtn" class="player-back-btn">
+              <span>←</span>
+              <span>Back</span>
+            </button>
+            <h1 id="playerMovieTitle" class="player-movie-title">Movie Title</h1>
+          </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="player-bottom-controls">
+
+          <!-- Scrubber Timeline -->
+          <div id="scrubContainer" class="scrub-container">
+            <div class="scrub-bar-track">
+              <div id="scrubBuffered" class="scrub-bar-buffered"></div>
+              <div id="scrubProgress" class="scrub-bar-progress"></div>
+            </div>
+            <div id="scrubTooltip" class="scrub-tooltip">00:00</div>
+          </div>
+
+          <!-- Control Buttons Row -->
+          <div class="controls-buttons-row">
+            <div class="controls-left">
+              <button id="rewindBtn" class="ctrl-btn skip-btn" title="Rewind 10 seconds">
+                <span>↺</span>
+                <span>10s</span>
+              </button>
+              <button id="playToggleBtn" class="ctrl-btn play-toggle-btn" title="Play or Pause">
+                ▶
+              </button>
+              <button id="forwardBtn" class="ctrl-btn skip-btn" title="Forward 10 seconds">
+                <span>↻</span>
+                <span>10s</span>
+              </button>
+              <div id="timeDisplay" class="time-display">00:00 / 00:00</div>
+            </div>
+
+            <div class="controls-right">
+              <!-- Subtitles Menu Trigger -->
+              <div style="position: relative;">
+                <button id="subtitlesBtn" class="ctrl-btn" title="Subtitles & Font Size">
+                  <span>💬</span>
+                </button>
+                <div id="subtitlesMenu" class="popover-menu">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Quality Selector Trigger -->
+              <div style="position: relative;">
+                <button id="qualityBtn" class="ctrl-btn" title="Quality Settings">
+                  <span>⚙️</span>
+                </button>
+                <div id="qualityMenu" class="popover-menu">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Volume Control -->
+              <div class="volume-wrap">
+                <button id="volumeBtn" class="ctrl-btn" title="Mute/Unmute">
+                  🔊
+                </button>
+                <input
+                  type="range"
+                  id="volumeSlider"
+                  class="volume-slider"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value="1"
+                  aria-label="Volume"
+                />
+              </div>
+
+              <!-- Fullscreen Button -->
+              <button id="fullscreenBtn" class="ctrl-btn" title="Toggle Fullscreen">
+                ⛶
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/hls.min.js"></script>
+  <script src="/js/player.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
