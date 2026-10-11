@@ -2,7 +2,6 @@
   "name": "private-movie-stream",
   "version": "1.0.0",
   "description": "Private, elder-friendly personal movie streaming server with adaptive HLS, direct play, watch-together sync, and remote access",
-  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "build": "echo 'Frontend ready'",
