@@ -11,9 +11,25 @@ export default async function handler(req, res) {
     });
   }
 
+  // Extract path: if rewritten via vercel.json with ?path=, use it; otherwise fallback to headers or req.url
+  let requestPath = req.url;
+  try {
+    const urlObj = new URL(req.url, 'http://localhost');
+    const paramPath = urlObj.searchParams.get('path');
+    if (paramPath) {
+      urlObj.searchParams.delete('path');
+      const remainingSearch = urlObj.searchParams.toString();
+      requestPath = paramPath + (remainingSearch ? (paramPath.includes('?') ? '&' : '?') + remainingSearch : '');
+    } else if (req.headers['x-matched-path']) {
+      requestPath = req.headers['x-matched-path'];
+    }
+  } catch (e) {
+    requestPath = req.url;
+  }
+
   // Construct target URL
   const cleanBackend = backendUrl.replace(/\/+$/, '');
-  const targetUrl = `${cleanBackend}${req.url}`;
+  const targetUrl = `${cleanBackend}${requestPath.startsWith('/') ? requestPath : '/' + requestPath}`;
 
   try {
     const fetchOptions = {
