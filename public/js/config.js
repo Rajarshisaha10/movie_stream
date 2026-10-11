@@ -42,4 +42,22 @@
     if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
     return window.CINEMA_SERVER_URL ? `${window.CINEMA_SERVER_URL}${endpoint}` : endpoint;
   };
+
+  // 4. Shared authenticated fetch helper
+  window.getAuthToken = function() {
+    return localStorage.getItem('cinema_auth_token') || '';
+  };
+
+  window.authFetch = function(endpoint, options = {}) {
+    const url = window.resolveApiUrl(endpoint);
+    const token = window.getAuthToken();
+    const headers = { ...(options.headers || {}) };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      headers['x-auth-token'] = token;
+    }
+    options.headers = headers;
+    options.credentials = 'include';
+    return fetch(url, options);
+  };
 })();

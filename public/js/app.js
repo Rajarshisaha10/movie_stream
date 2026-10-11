@@ -39,6 +39,19 @@ class CinemaApp {
     this.init();
   }
 
+  async authFetch(endpoint, options = {}) {
+    const url = window.resolveApiUrl ? window.resolveApiUrl(endpoint) : endpoint;
+    const token = localStorage.getItem('cinema_auth_token') || '';
+    const headers = { ...(options.headers || {}) };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      headers['x-auth-token'] = token;
+    }
+    options.headers = headers;
+    options.credentials = 'include';
+    return fetch(url, options);
+  }
+
   async init() {
     this.initEventListeners();
     await this.loadMovies();
@@ -59,8 +72,7 @@ class CinemaApp {
       this.rescanBtn.disabled = true;
       this.rescanBtn.textContent = 'Scanning...';
       try {
-        const target = window.resolveApiUrl ? window.resolveApiUrl('/api/movies/scan') : '/api/movies/scan';
-        const res = await fetch(target, { method: 'POST', credentials: 'include' });
+        const res = await this.authFetch('/api/movies/scan', { method: 'POST' });
         const data = await res.json();
         this.showToast(`Scan complete: found ${data.total} movies!`);
         await this.loadMovies();
@@ -75,12 +87,11 @@ class CinemaApp {
     // Logout
     this.logoutBtn.addEventListener('click', async () => {
       try {
-        const target = window.resolveApiUrl ? window.resolveApiUrl('/api/auth/logout') : '/api/auth/logout';
-        await fetch(target, { method: 'POST', credentials: 'include' });
-        window.location.href = '/login.html';
-      } catch {
-        window.location.href = '/login.html';
-      }
+        await this.authFetch('/api/auth/logout', { method: 'POST' });
+      } catch {}
+      localStorage.removeItem('cinema_auth_token');
+      localStorage.removeItem('cinema_authenticated');
+      window.location.href = '/login.html';
     });
 
     // Movie Detail Modal Close
@@ -97,9 +108,11 @@ class CinemaApp {
 
   async loadMovies() {
     try {
-      const target = window.resolveApiUrl ? window.resolveApiUrl('/api/movies') : '/api/movies';
-      const res = await fetch(target, { credentials: 'include' });
+      const res = await this.authFetch('/api/movies');
       if (res.status === 401) {
+        console.warn('Session expired or unauthorized, redirecting to login');
+        localStorage.removeItem('cinema_auth_token');
+        localStorage.removeItem('cinema_authenticated');
         window.location.href = '/login.html';
         return;
       }

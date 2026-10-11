@@ -3,16 +3,17 @@
   🎬 MOM'S PRIVATE CINEMA IS LIVE OVER THE INTERNET!
 ===================================================================
 
-Send this link to Mom (copy and send via WhatsApp / SMS / iMessage):
+Mom's Permanent Vercel App Link:
+👉  Open your Vercel URL (e.g. https://your-project.vercel.app)
 
-👉  https://api.trycloudflare.com
+Direct Tunnel Link (Backup):
+👉  https://findarticles-favor-extensive-music.trycloudflare.com
 
 Password for Mom:  mom123
 
-Tips for Mom:
-• Open on iPhone, iPad, Android phone, tablet, or TV browser.
-• On iPhone / iPad: Tap 'Share' -> 'Add to Home Screen' for app icon.
-• Subtitles, 10s rewind, and adaptive qualities are ready!
+Auto-Discovery:
+• Your laptop automatically connected to your Vercel frontend!
+• Mom never needs a new link—her Vercel link always works.
 
 KEEP THIS WINDOW OPEN while Mom is watching.
 ===================================================================

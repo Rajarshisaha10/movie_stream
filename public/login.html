@@ -204,7 +204,11 @@
         }
 
         if (res.ok && data.success) {
-          submitBtn.innerHTML = '<span>Success! Redirecting...</span>';
+          if (data.token) {
+            localStorage.setItem('cinema_auth_token', data.token);
+          }
+          localStorage.setItem('cinema_authenticated', 'true');
+          submitBtn.innerHTML = '<span>Success! Entering Cinema...</span>';
           window.location.href = '/';
         } else {
           errorMsg.textContent = data.error || 'Incorrect password. Please try again.';

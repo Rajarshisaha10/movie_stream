@@ -24,13 +24,16 @@ const io = new SocketIOServer(server, {
 });
 setupWatchTogether(io);
 
+// Trust reverse proxy (Cloudflare Tunnel, Vercel, Tailscale, Nginx)
+app.set('trust proxy', 1);
+
 // Enable CORS for Vercel & remote frontends
 app.use((req, res, next) => {
   const origin = req.headers.origin || '*';
   res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range, Cookie, x-backend-url');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range, Cookie, x-backend-url, x-auth-token');
   res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
@@ -51,14 +54,11 @@ app.use(
     cookie: {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      sameSite: 'lax',
-      secure: false // Set to true if running behind HTTPS with trust proxy
+      sameSite: 'none',
+      secure: true // Required for cross-site cookies with Cloudflare HTTPS
     }
   })
 );
-
-// If behind reverse proxy (Cloudflare Tunnel, Tailscale, Nginx)
-app.set('trust proxy', 1);
 
 // Auth endpoints (public)
 app.post('/api/auth/login', loginLimiter, authController.login);

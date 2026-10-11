@@ -1,5 +1,6 @@
 import { config } from '../config.js';
 import { logger } from '../logger.js';
+import { generateAuthToken, isValidToken } from './authMiddleware.js';
 
 export const authController = {
   login(req, res) {
@@ -10,10 +11,17 @@ export const authController = {
     }
 
     if (password.trim() === config.streamPassword) {
-      req.session.authenticated = true;
-      req.session.loginTime = new Date().toISOString();
+      const token = generateAuthToken();
+      if (req.session) {
+        req.session.authenticated = true;
+        req.session.loginTime = new Date().toISOString();
+      }
       logger.info(`Successful login from IP: ${req.ip}`);
-      return res.json({ success: true, message: 'Welcome to Family Cinema!' });
+      return res.json({
+        success: true,
+        token: token,
+        message: 'Welcome to Family Cinema!'
+      });
     }
 
     logger.warn(`Failed login attempt with incorrect password from IP: ${req.ip}`);
@@ -21,18 +29,19 @@ export const authController = {
   },
 
   logout(req, res) {
-    req.session.destroy((err) => {
-      if (err) {
-        logger.error(`Error destroying session: ${err.message}`);
-        return res.status(500).json({ success: false, error: 'Could not log out' });
-      }
-      res.clearCookie('connect.sid');
-      res.json({ success: true, message: 'Logged out successfully' });
-    });
+    if (req.session) {
+      req.session.destroy(() => {});
+    }
+    res.clearCookie('connect.sid');
+    res.json({ success: true, message: 'Logged out successfully' });
   },
 
   status(req, res) {
-    const isAuthenticated = Boolean(req.session && req.session.authenticated);
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    const candidateToken = bearerToken || req.headers['x-auth-token'] || req.query.token;
+    const isTokenValid = candidateToken && isValidToken(candidateToken);
+    const isAuthenticated = Boolean(isTokenValid || (req.session && req.session.authenticated));
     res.json({ authenticated: isAuthenticated });
   }
 };

@@ -170,7 +170,12 @@ class CinemaPlayer {
       this.hls = null;
     }
 
-    const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+    const resolve = (p) => {
+      const token = localStorage.getItem('cinema_auth_token') || '';
+      const base = window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+      if (!token) return base;
+      return base.includes('?') ? `${base}&token=${encodeURIComponent(token)}` : `${base}?token=${encodeURIComponent(token)}`;
+    };
 
     if (quality === 'direct') {
       this.video.src = resolve(`/stream/direct/${movie.id}`);
@@ -210,7 +215,14 @@ class CinemaPlayer {
         maxBufferLength: 20,
         maxMaxBufferLength: 40,
         enableWorker: true,
-        lowLatencyMode: false
+        lowLatencyMode: false,
+        xhrSetup: (xhr) => {
+          const token = localStorage.getItem('cinema_auth_token');
+          if (token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            xhr.setRequestHeader('x-auth-token', token);
+          }
+        }
       });
 
       this.hls.loadSource(streamUrl);
@@ -430,9 +442,15 @@ class CinemaPlayer {
     this.progressInterval = setInterval(() => {
       if (this.currentMovie && this.video.currentTime > 0) {
         const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+        const token = localStorage.getItem('cinema_auth_token') || '';
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+          headers['x-auth-token'] = token;
+        }
         fetch(resolve(`/api/progress/${this.currentMovie.id}`), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           credentials: 'include',
           body: JSON.stringify({
             currentTime: Math.round(this.video.currentTime),
