@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
+    "build": "echo 'Frontend ready'",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "tunnel": "node scripts/start_tunnel.js",
