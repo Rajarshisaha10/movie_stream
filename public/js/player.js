@@ -170,8 +170,10 @@ class CinemaPlayer {
       this.hls = null;
     }
 
+    const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+
     if (quality === 'direct') {
-      this.video.src = `/stream/direct/${movie.id}`;
+      this.video.src = resolve(`/stream/direct/${movie.id}`);
       if (currentTime > 0) {
         this.video.addEventListener('loadedmetadata', () => {
           this.video.currentTime = currentTime;
@@ -182,9 +184,9 @@ class CinemaPlayer {
     }
 
     // Determine HLS URL
-    let streamUrl = `/stream/hls/${movie.id}/master.m3u8`;
+    let streamUrl = resolve(`/stream/hls/${movie.id}/master.m3u8`);
     if (quality !== 'auto') {
-      streamUrl = `/stream/hls/${movie.id}/${quality}/index.m3u8`;
+      streamUrl = resolve(`/stream/hls/${movie.id}/${quality}/index.m3u8`);
     }
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -328,11 +330,8 @@ class CinemaPlayer {
 
     if (subId === 'off') return;
 
-    const track = document.createElement('track');
-    track.kind = 'subtitles';
-    track.label = 'Selected';
-    track.srclang = 'en';
-    track.src = `/stream/subtitles/${this.currentMovie.id}/${subId}`;
+    const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+    track.src = resolve(`/stream/subtitles/${this.currentMovie.id}/${subId}`);
     track.default = true;
     this.video.appendChild(track);
 
@@ -430,9 +429,11 @@ class CinemaPlayer {
     clearInterval(this.progressInterval);
     this.progressInterval = setInterval(() => {
       if (this.currentMovie && this.video.currentTime > 0) {
-        fetch(`/api/progress/${this.currentMovie.id}`, {
+        const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+        fetch(resolve(`/api/progress/${this.currentMovie.id}`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             currentTime: Math.round(this.video.currentTime),
             duration: Math.round(this.video.duration || this.currentMovie.duration)
@@ -447,9 +448,11 @@ class CinemaPlayer {
     clearTimeout(this.hideOverlayTimer);
 
     if (this.currentMovie && this.video.currentTime > 0) {
-      fetch(`/api/progress/${this.currentMovie.id}`, {
+      const resolve = (p) => window.resolveApiUrl ? window.resolveApiUrl(p) : p;
+      fetch(resolve(`/api/progress/${this.currentMovie.id}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           currentTime: Math.round(this.video.currentTime),
           duration: Math.round(this.video.duration || this.currentMovie.duration)

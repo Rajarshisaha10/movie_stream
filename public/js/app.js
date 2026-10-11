@@ -59,7 +59,8 @@ class CinemaApp {
       this.rescanBtn.disabled = true;
       this.rescanBtn.textContent = 'Scanning...';
       try {
-        const res = await fetch('/api/movies/scan', { method: 'POST' });
+        const target = window.resolveApiUrl ? window.resolveApiUrl('/api/movies/scan') : '/api/movies/scan';
+        const res = await fetch(target, { method: 'POST', credentials: 'include' });
         const data = await res.json();
         this.showToast(`Scan complete: found ${data.total} movies!`);
         await this.loadMovies();
@@ -74,7 +75,8 @@ class CinemaApp {
     // Logout
     this.logoutBtn.addEventListener('click', async () => {
       try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        const target = window.resolveApiUrl ? window.resolveApiUrl('/api/auth/logout') : '/api/auth/logout';
+        await fetch(target, { method: 'POST', credentials: 'include' });
         window.location.href = '/login.html';
       } catch {
         window.location.href = '/login.html';
@@ -95,7 +97,8 @@ class CinemaApp {
 
   async loadMovies() {
     try {
-      const res = await fetch('/api/movies');
+      const target = window.resolveApiUrl ? window.resolveApiUrl('/api/movies') : '/api/movies';
+      const res = await fetch(target, { credentials: 'include' });
       if (res.status === 401) {
         window.location.href = '/login.html';
         return;
@@ -118,8 +121,9 @@ class CinemaApp {
 
     if (inProgress.length > 0) {
       const movie = inProgress[0];
+      const thumbUrl = window.resolveApiUrl ? window.resolveApiUrl(movie.thumbnailUrl) : movie.thumbnailUrl;
       this.continueSection.style.display = 'block';
-      this.continueThumb.src = movie.thumbnailUrl;
+      this.continueThumb.src = thumbUrl;
       this.continueTitle.textContent = movie.title;
       this.continueMeta.textContent = `Resume from ${this.formatTime(movie.progress.currentTime)} of ${movie.durationFormatted}`;
       this.continueProgressFill.style.width = `${movie.progress.percentage}%`;
@@ -156,9 +160,11 @@ class CinemaApp {
         </div>
       ` : '';
 
+      const thumbUrl = window.resolveApiUrl ? window.resolveApiUrl(movie.thumbnailUrl) : movie.thumbnailUrl;
+
       card.innerHTML = `
         <div class="movie-thumb-wrap">
-          <img class="movie-thumb" src="${movie.thumbnailUrl}" alt="${movie.title}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'170\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'50%\\' fill=\\'%2364748b\\' font-size=\\'18\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\'>🎬 Cinema</text></svg>'">
+          <img class="movie-thumb" src="${thumbUrl}" alt="${movie.title}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'300\\' height=\\'170\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%231e293b\\'/><text x=\\'50%\\' y=\\'50%\\' fill=\\'%2364748b\\' font-size=\\'18\\' dominant-baseline=\\'middle\\' text-anchor=\\'middle\\'>🎬 Cinema</text></svg>'">
           <div class="movie-badge-dur">${movie.durationFormatted}</div>
           <div class="movie-badge-res">${movie.height >= 1000 ? '1080p HD' : (movie.height >= 700 ? '720p HD' : 'SD')}</div>
           ${progressMarkup}
@@ -185,7 +191,8 @@ class CinemaApp {
 
   openMovieModal(movie) {
     this.selectedMovie = movie;
-    this.modalThumb.src = movie.thumbnailUrl;
+    const thumbUrl = window.resolveApiUrl ? window.resolveApiUrl(movie.thumbnailUrl) : movie.thumbnailUrl;
+    this.modalThumb.src = thumbUrl;
     this.modalTitle.textContent = movie.title;
     this.modalDuration.textContent = movie.durationFormatted;
     this.modalResolution.textContent = `${movie.resolution} (${movie.codec})`;

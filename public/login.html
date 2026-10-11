@@ -158,6 +158,7 @@
     </div>
   </div>
 
+  <script src="/js/config.js"></script>
   <script>
     const form = document.getElementById('loginForm');
     const input = document.getElementById('passwordInput');
@@ -185,10 +186,12 @@
       const timeoutTimer = setTimeout(() => controller.abort(), 8000);
 
       try {
-        const res = await fetch('/api/auth/login', {
+        const targetUrl = window.resolveApiUrl ? window.resolveApiUrl('/api/auth/login') : '/api/auth/login';
+        const res = await fetch(targetUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: input.value }),
+          credentials: 'include',
           signal: controller.signal
         });
         clearTimeout(timeoutTimer);
